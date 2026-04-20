@@ -1,3 +1,5 @@
+import { Camera, Plus, X, Sun, CloudRain, Thermometer, Leaf, Flower2, Search, RotateCcw } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
