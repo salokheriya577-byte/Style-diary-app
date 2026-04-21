@@ -53,6 +53,7 @@ import { twMerge } from 'tailwind-merge';
 import { GoogleGenAI } from "@google/genai";
 
 import { Category, Weather, ClothingItem, Outfit, LogEntry, UserData, INITIAL_DATA } from './types';
+import animeWow from './assets/images/anime_wow_1776756124733.png';
 
 // Utility for Tailwind classes
 function cn(...inputs: ClassValue[]) {
@@ -504,13 +505,23 @@ function JournalView({ data, setData }: { data: UserData; setData: React.Dispatc
       <AnimatePresence>
         {showWowOverlay && (
           <motion.div
-            initial={{ scale: 0, opacity: 0, y: 100, rotate: -10 }}
+            initial={{ scale: 0, opacity: 0, y: 150, rotate: -15 }}
             animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
             exit={{ scale: 0, opacity: 0, y: 100, rotate: 10 }}
-            transition={{ type: "spring", bounce: 0.6, duration: 0.8 }}
-            className="fixed bottom-20 right-10 z-50 pointer-events-none"
+            transition={{ type: "spring", bounce: 0.7, duration: 1 }}
+            className="fixed bottom-[10%] right-[10%] z-50 pointer-events-none"
           >
-            <img src="https://media.tenor.com/h2y3jD5Gup0AAAAd/anime-wow.gif" alt="Wow" className="w-48 h-auto drop-shadow-[0_0_20px_rgba(255,105,180,0.8)]" />
+            <div className="relative">
+              <motion.div 
+                animate={{ y: [0, -10, 0] }} 
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+              >
+                <div className="bg-white/90 backdrop-blur-sm text-lavender-500 font-bold px-4 py-2 rounded-2xl shadow-xl absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap border-2 border-lavender-200">
+                  Wow! Perfect Outfit! ✨
+                </div>
+                <img src={animeWow} alt="Wow" className="w-56 h-auto drop-shadow-[0_0_20px_rgba(255,105,180,0.5)] rounded-full border-4 border-white shadow-2xl" />
+              </motion.div>
+            </div>
           </motion.div>
         )}
 
