@@ -93,7 +93,11 @@ const setupInitialWardrobe = (data: UserData): UserData => {
   return {
     ...data,
     items: [
-      { id: '2', name: 'Blue Denim', category: 'Bottom', imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=400', weatherTags: ['Autumn', 'Spring', 'Cold'] }
+      { id: '1', name: 'Casual Shirt', category: 'Top', imageUrl: 'https://images.unsplash.com/photo-1626497764746-6dc36546b388?auto=format&fit=crop&w=400&q=80', weatherTags: ['Sunny', 'Spring'] },
+      { id: '2', name: 'Denim Jeans', category: 'Bottom', imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=400', weatherTags: ['Autumn', 'Spring', 'Cold'] },
+      { id: '3', name: 'Trench Coat', category: 'Outerwear', imageUrl: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80', weatherTags: ['Rainy', 'Autumn', 'Cold'] },
+      { id: '4', name: 'Classic Sneakers', category: 'Shoes', imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80', weatherTags: ['Sunny', 'Spring', 'Autumn'] },
+      { id: '5', name: 'Design Kurta', category: 'Top', imageUrl: 'https://images.unsplash.com/photo-1596515286576-905bbab3aee1?auto=format&fit=crop&w=400&q=80', weatherTags: ['Sunny', 'Spring', 'Hot'] }
     ]
   };
 };
@@ -111,14 +115,19 @@ export default function App() {
     if (saved) {
       let parsed = JSON.parse(saved);
       
-      // Migration: Update picsum.photos URLs in local storage to new unsplash URLs for better realism
-      const needsImageMigration = parsed.items.some((i: any) => i.imageUrl.includes('picsum.photos') || i.imageUrl.includes('1542272604-780c4050d243'));
-      if (needsImageMigration) {
+      // Migration: Update picsum.photos URLs in local storage to new unsplash URLs for better realism, and fix generic fallback names
+      const needsMigration = parsed.items.some((i: any) => 
+        i.imageUrl.includes('picsum.photos') || 
+        i.imageUrl.includes('1542272604-780c4050d243') ||
+        ['White Sneakers', 'Beige Trench Coat', 'White Linen Shirt', 'Blue Denim'].includes(i.name)
+      );
+      
+      if (needsMigration) {
         parsed.items = parsed.items.map((i: any) => {
-          if (i.id === '1') return { ...i, imageUrl: 'https://images.unsplash.com/photo-1626497764746-6dc36546b388?auto=format&fit=crop&w=400&q=80' };
-          if (i.id === '2' || i.imageUrl.includes('1542272604-780c4050d243')) return { ...i, imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80' };
-          if (i.id === '3') return { ...i, imageUrl: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80' };
-          if (i.id === '4') return { ...i, imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80' };
+          if (i.id === '1') return { ...i, name: 'Casual Shirt', imageUrl: 'https://images.unsplash.com/photo-1626497764746-6dc36546b388?auto=format&fit=crop&w=400&q=80' };
+          if (i.id === '2' || i.imageUrl.includes('1542272604-780c4050d243')) return { ...i, name: 'Denim Jeans', imageUrl: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80' };
+          if (i.id === '3') return { ...i, name: 'Stylish Coat', imageUrl: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=400&q=80' };
+          if (i.id === '4') return { ...i, name: 'Classic Sneakers', imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80' };
           return i;
         });
       }
@@ -217,15 +226,12 @@ function SplashScreen() {
         className="text-center"
       >
         <div className="w-48 h-48 mb-6 mx-auto bg-white/60 glass-card rounded-[2.5rem] flex items-center justify-center shadow-2xl p-6 relative overflow-hidden">
-          <BookHeart className="absolute w-32 h-32 text-lavender-200/50" />
+          <BookHeart className="absolute w-32 h-32 text-lavender-200" />
           <img 
-            src="input_file_0.png" 
+            src="https://images.unsplash.com/photo-1550614000-4b95d4ed688b?auto=format&fit=crop&q=80&w=400" 
             alt="Her Style Diary" 
-            className="relative z-10 w-full h-full object-contain" 
+            className="relative z-10 w-full h-full object-cover rounded-2xl shadow-inner mix-blend-multiply opacity-90" 
             referrerPolicy="no-referrer"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.opacity = '0';
-            }}
           />
         </div>
         <h1 className="text-4xl font-serif font-black text-white tracking-tighter mb-2 italic drop-shadow-xl">
@@ -505,6 +511,7 @@ function JournalView({ data, setData }: { data: UserData; setData: React.Dispatc
       <AnimatePresence>
         {showWowOverlay && (
           <motion.div
+            key="wow-overlay"
             initial={{ scale: 0, opacity: 0, y: 150, rotate: -15 }}
             animate={{ scale: 1, opacity: 1, y: 0, rotate: 0 }}
             exit={{ scale: 0, opacity: 0, y: 100, rotate: 10 }}
@@ -519,14 +526,17 @@ function JournalView({ data, setData }: { data: UserData; setData: React.Dispatc
                 <div className="bg-white/90 backdrop-blur-sm text-lavender-500 font-bold px-4 py-2 rounded-2xl shadow-xl absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap border-2 border-lavender-200">
                   Wow! Perfect Outfit! ✨
                 </div>
-                <img src={animeWow} alt="Wow" className="w-56 h-auto drop-shadow-[0_0_20px_rgba(255,105,180,0.5)] rounded-full border-4 border-white shadow-2xl" />
+                <img src={animeWow} alt="Wow" className="w-56 h-auto drop-shadow-[0_0_20px_rgba(255,105,180,0.5)] z-50 pointer-events-none" />
               </motion.div>
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
 
+      <AnimatePresence>
         {repetitionAlert && (
           <motion.div 
+            key="rep-alert"
             initial={{ opacity: 0, y: 50, x: '-50%' }}
             animate={{ 
               opacity: 1, 
@@ -551,14 +561,23 @@ function JournalView({ data, setData }: { data: UserData; setData: React.Dispatc
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
 
+      <AnimatePresence>
         {showLogModal && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <motion.div 
+            key="log-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+          >
             <motion.div 
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
-              className="w-full max-w-sm bg-white/5 border border-white/5 rounded-[3rem] p-10 shadow-3xl relative backdrop-blur-2xl"
+              transition={{ type: "spring", bounce: 0.3 }}
+              className="w-full max-w-sm bg-[#0f0c29]/90 border border-white/10 rounded-[3rem] p-10 shadow-3xl relative backdrop-blur-2xl"
             >
               <button onClick={() => setShowLogModal(false)} className="absolute top-8 right-8 text-white/20 hover:text-white transition-colors">
                 <X size={28} />
@@ -615,7 +634,7 @@ function JournalView({ data, setData }: { data: UserData; setData: React.Dispatc
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
@@ -903,14 +922,24 @@ function WardrobeView({ data, setData }: { data: UserData; setData: React.Dispat
         </AnimatePresence>
       </div>
 
-      {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-lg">
-          <motion.form 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            onSubmit={handleAddItem}
-            className="w-full max-w-sm bg-lavender-100/10 rounded-[40px] p-8 shadow-2xl relative space-y-4 border border-white/5 backdrop-blur-2xl"
+      <AnimatePresence>
+        {isAdding && (
+          <motion.div 
+            key="add-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-lg"
           >
+            <motion.form 
+              key="add-modal-form"
+              initial={{ scale: 0.9, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 50 }}
+              transition={{ type: "spring", bounce: 0.3 }}
+              onSubmit={handleAddItem}
+              className="w-full max-w-sm bg-[#0f0c29]/90 rounded-[40px] p-8 shadow-2xl relative space-y-4 border border-white/10 backdrop-blur-2xl"
+            >
             <button type="button" onClick={() => setIsAdding(false)} className="absolute top-6 right-6 text-white/20 hover:text-white-600 transition-colors">
               <X size={24} />
             </button>
@@ -1021,8 +1050,9 @@ function WardrobeView({ data, setData }: { data: UserData; setData: React.Dispat
               {editingItem ? 'Store Changes' : 'Append to Closet'}
             </button>
           </motion.form>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -1339,6 +1369,24 @@ function AiSuggestionPanel({ data, onUseOutfit, onCreateAndUseOutfit }: { data: 
               <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10">
                 <span className="text-[10px] font-black uppercase tracking-widest text-lavender-300 block mb-2">Recommended Look</span>
                 <p className="font-serif text-3xl italic mb-4 leading-tight text-white">{suggestion.outfitName}</p>
+                
+                {suggestion.itemIds && suggestion.itemIds.length > 0 && (
+                  <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-none">
+                    {suggestion.itemIds.map(id => {
+                      const item = data.items.find(i => i.id === id);
+                      if (!item) return null;
+                      return (
+                        <div key={id} className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-white/20 relative group">
+                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <span className="text-[8px] font-black uppercase text-center leading-tight px-1">{item.name}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
                 <div className="h-px bg-gradient-to-r from-lavender-500/50 to-transparent w-full mb-4" />
                 <p className="text-sm opacity-90 leading-relaxed text-lavender-100 font-medium">"{suggestion.reason}"</p>
               </div>
